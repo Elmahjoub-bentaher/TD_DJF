@@ -51,9 +51,16 @@ services:
     environment:
       - WATCHPACK_POLLING=true
     depends_on:
-      - app  # Oblige Nginx à attendre que le backend soit créé
+      - app
     networks:
       - app-network
+  tests:
+    image: gradle:8-jdk17-alpine
+    container_name: unit-tests
+    volumes:
+      - ./djf:/home/gradle/project
+    working_dir: /home/gradle/project
+    command: gradle test --info
 
 networks:
   app-network:
