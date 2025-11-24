@@ -1,194 +1,3 @@
-// // import React, { useState, useEffect } from 'react';
-// //
-// // function UserList() {
-// //
-// //     const [users, setUsers] = useState([]);
-// //     const [loading, setLoading] = useState(true);
-// //     const API_URL = "http://localhost:9000/api/users";
-// //
-// //     useEffect(() => {
-// //         // Fonction asynchrone pour la récupération des données
-// //         const fetchUsers = async () => {
-// //             try {
-// //                 const response = await fetch(API_URL);
-// //
-// //                 if (!response.ok) {
-// //                     throw new Error(`Erreur HTTP: ${response.status}`);
-// //                 }
-// //
-// //                 const data = await response.json();
-// //                 setUsers(data);
-// //             } catch (error) {
-// //                 console.error("Erreur lors de la récupération des utilisateurs:", error);
-// //                 setUsers(null);
-// //             } finally {
-// //                 setLoading(false);
-// //             }
-// //         };
-// //
-// //         fetchUsers();
-// //     }, []);
-// //
-// //     // --- Affichage ---
-// //     if (loading) {
-// //         return <h2>Chargement en cours...</h2>;
-// //     }
-// //
-// //     if (users === null) {
-// //         return <h2 style={{color: 'red'}}>Erreur: Impossible de joindre l'API. Vérifiez la console et la configuration CORS.</h2>;
-// //     }
-// //
-// //     return (
-// //         <div style={{ padding: '20px' }}>
-// //             <h1>Liste des Utilisateurs ({users.length})</h1>
-// //             {users.length === 0 ? (
-// //                 <p>Aucun utilisateur n'est présent dans la base de données.</p>
-// //             ) : (
-// //                 <div>
-// //                     {users.map(user => (
-// //                         <p key={user.id}>
-// //                             <strong>ID {user.id}:</strong> {user.username} ({user.email})
-// //                         </p>
-// //                     ))}
-// //                 </div>
-// //             )}
-// //         </div>
-// //     );
-// // }
-// //
-// // export default UserList;
-//
-//
-// import React, { useState, useEffect } from 'react';
-//
-// function UserList() {
-//     // --- ÉTATS (STATE) ---
-//     const [users, setUsers] = useState([]);
-//     const [loading, setLoading] = useState(true);
-//     const [showForm, setShowForm] = useState(false); // Pour afficher/masquer le formulaire
-//     const [newUser, setNewUser] = useState({ username: '', email: '' }); // Données du nouvel utilisateur
-//
-//     const API_URL = "http://localhost:9000/api/users";
-//
-//     // --- CHARGEMENT DES DONNÉES (GET) ---
-//     useEffect(() => {
-//         fetchUsers();
-//     }, []);
-//
-//     const fetchUsers = async () => {
-//         try {
-//             const response = await fetch(API_URL);
-//             if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
-//             const data = await response.json();
-//             setUsers(data);
-//         } catch (error) {
-//             console.error("Erreur fetch:", error);
-//         } finally {
-//             setLoading(false);
-//         }
-//     };
-//
-//     // --- AJOUT D'UN UTILISATEUR (POST) ---
-//     const handleAddUser = async (e) => {
-//         e.preventDefault(); // Empêche le rechargement de la page
-//
-//         try {
-//             const response = await fetch(API_URL, {
-//                 method: 'POST',
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                 },
-//                 body: JSON.stringify(newUser),
-//             });
-//
-//             if (response.ok) {
-//                 const createdUser = await response.json();
-//                 // Ajoute le nouvel utilisateur à la liste locale immédiatement
-//                 setUsers([...users, createdUser]);
-//                 // Réinitialise le formulaire
-//                 setNewUser({ username: '', email: '' });
-//                 setShowForm(false);
-//             } else {
-//                 alert("Erreur lors de la création de l'utilisateur");
-//             }
-//         } catch (error) {
-//             console.error("Erreur ajout:", error);
-//         }
-//     };
-//
-//     // --- GESTION DES INPUTS ---
-//     const handleInputChange = (e) => {
-//         const { name, value } = e.target;
-//         setNewUser({ ...newUser, [name]: value });
-//     };
-//
-//     // --- RENDER (AFFICHAGE) ---
-//     if (loading) return <h2>Chargement...</h2>;
-//
-//     return (
-//         <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-//
-//             {/* En-tête avec le bouton + */}
-//             <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-//                 <h1>Liste des Utilisateurs</h1>
-//                 <button
-//                     onClick={() => setShowForm(!showForm)}
-//                     style={{
-//                         width: '40px', height: '40px', borderRadius: '50%',
-//                         border: 'none', backgroundColor: '#28a745', color: 'white',
-//                         fontSize: '24px', cursor: 'pointer', display: 'flex',
-//                         alignItems: 'center', justifyContent: 'center'
-//                     }}
-//                     title="Ajouter un utilisateur"
-//                 >
-//                     {showForm ? '-' : '+'}
-//                 </button>
-//             </div>
-//
-//             {/* Formulaire d'ajout (Visible seulement si showForm est true) */}
-//             {showForm && (
-//                 <form onSubmit={handleAddUser} style={{
-//                     marginBottom: '20px', padding: '15px', border: '1px solid #ddd',
-//                     borderRadius: '8px', backgroundColor: '#f9f9f9', maxWidth: '400px'
-//                 }}>
-//                     <h3>Nouvel Utilisateur</h3>
-//                     <div style={{ marginBottom: '10px' }}>
-//                         <input
-//                             type="text" name="username" placeholder="Nom d'utilisateur"
-//                             value={newUser.username} onChange={handleInputChange} required
-//                             style={{ padding: '8px', width: '100%', marginBottom: '10px' }}
-//                         />
-//                         <input
-//                             type="email" name="email" placeholder="Email"
-//                             value={newUser.email} onChange={handleInputChange} required
-//                             style={{ padding: '8px', width: '100%' }}
-//                         />
-//                     </div>
-//                     <button type="submit" style={{
-//                         padding: '8px 15px', backgroundColor: '#007bff', color: 'white',
-//                         border: 'none', borderRadius: '4px', cursor: 'pointer'
-//                     }}>
-//                         Enregistrer
-//                     </button>
-//                 </form>
-//             )}
-//
-//             {/* Liste des utilisateurs */}
-//             <ul style={{ listStyleType: 'none', padding: 0 }}>
-//                 {users.map(user => (
-//                     <li key={user.id} style={{
-//                         padding: '10px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between'
-//                     }}>
-//                         <span><strong>{user.username}</strong> <small>({user.email})</small></span>
-//                     </li>
-//                 ))}
-//             </ul>
-//         </div>
-//     );
-// }
-//
-// export default UserList;
-
 import React, { useState, useEffect } from 'react';
 
 function UserList() {
@@ -196,12 +5,18 @@ function UserList() {
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
 
-    const [formData, setFormData] = useState({ username: '', email: '' });
+    const [formData, setFormData] = useState({
+        username: '',
+        email: '',
+        phoneNumber: '',
+        password: ''
+    });
+
     const [editingId, setEditingId] = useState(null);
 
     // const API_URL = "http://localhost:9000/api/users";
     const API_URL = "/api/users";
-    // --- CHARGEMENT DES DONNÉES (GET) ---
+
     useEffect(() => {
         fetchUsers();
     }, []);
@@ -242,8 +57,8 @@ function UserList() {
                     setUsers([...users, savedUser]);
                 }
 
-                // Réinitialisation
-                setFormData({ username: '', email: '' });
+                // Réinitialisation complète du formulaire
+                setFormData({ username: '', email: '', phoneNumber: '', password: '' });
                 setEditingId(null);
                 setShowForm(false);
             } else {
@@ -254,23 +69,28 @@ function UserList() {
         }
     };
 
-    // --- PRÉPARER LA MODIFICATION ---
     const handleEditClick = (user) => {
-        setEditingId(user.id);       // On garde l'ID
-        setFormData({                // On remplit le formulaire avec les infos actuelles
+        setEditingId(user.id);
+        setFormData({
             username: user.username,
-            email: user.email
+            email: user.email,
+            phoneNumber: user.phoneNumber || '',
+            password: ''
         });
-        setShowForm(true);           // On ouvre le formulaire
+        setShowForm(true);
     };
 
-    // --- GESTION DES INPUTS ---
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
-    // --- RENDER ---
+    const handleReset = () => {
+        setShowForm(!showForm);
+        setEditingId(null);
+        setFormData({ username: '', email: '', phoneNumber: '', password: '' });
+    };
+
     if (loading) return <h2>Chargement...</h2>;
 
     return (
@@ -280,11 +100,7 @@ function UserList() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                 <h1>Liste des Utilisateurs</h1>
                 <button
-                    onClick={() => {
-                        setShowForm(!showForm);
-                        setEditingId(null); // Si on clique sur +, on réinitialise le mode édition
-                        setFormData({ username: '', email: '' });
-                    }}
+                    onClick={handleReset}
                     style={{
                         width: '40px', height: '40px', borderRadius: '50%',
                         border: 'none', backgroundColor: showForm ? '#dc3545' : '#28a745', color: 'white',
@@ -304,20 +120,42 @@ function UserList() {
                     borderRadius: '8px', backgroundColor: '#f9f9f9', maxWidth: '400px'
                 }}>
                     <h3>{editingId ? 'Modifier l\'utilisateur' : 'Nouvel Utilisateur'}</h3>
-                    <div style={{ marginBottom: '10px' }}>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '15px' }}>
+                        {/* Username */}
                         <input
                             type="text" name="username" placeholder="Nom d'utilisateur"
                             value={formData.username} onChange={handleInputChange} required
-                            style={{ padding: '8px', width: '100%', marginBottom: '10px', boxSizing: 'border-box' }}
+                            style={{ padding: '8px', boxSizing: 'border-box' }}
                         />
+
+                        {/* Email */}
                         <input
                             type="email" name="email" placeholder="Email"
                             value={formData.email} onChange={handleInputChange} required
-                            style={{ padding: '8px', width: '100%', boxSizing: 'border-box' }}
+                            style={{ padding: '8px', boxSizing: 'border-box' }}
+                        />
+
+                        {/* NOUVEAU : Téléphone */}
+                        <input
+                            type="tel" name="phoneNumber" placeholder="Numéro de téléphone"
+                            value={formData.phoneNumber} onChange={handleInputChange}
+                            style={{ padding: '8px', boxSizing: 'border-box' }}
+                        />
+
+                        {/* NOUVEAU : Mot de passe */}
+                        <input
+                            type="password" name="password"
+                            placeholder={editingId ? "Nouveau mot de passe (laisser vide si inchangé)" : "Mot de passe"}
+                            value={formData.password} onChange={handleInputChange}
+                            // Requis seulement à la création, optionnel à la modification (selon votre logique backend)
+                            required={!editingId}
+                            style={{ padding: '8px', boxSizing: 'border-box' }}
                         />
                     </div>
+
                     <button type="submit" style={{
-                        padding: '8px 15px', backgroundColor: '#007bff', color: 'white',
+                        padding: '10px 15px', backgroundColor: '#007bff', color: 'white',
                         border: 'none', borderRadius: '4px', cursor: 'pointer', width: '100%'
                     }}>
                         {editingId ? 'Mettre à jour' : 'Enregistrer'}
@@ -332,17 +170,25 @@ function UserList() {
                         padding: '10px', borderBottom: '1px solid #eee',
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                     }}>
-                        <span><strong>{user.username}</strong> <small>({user.email})</small></span>
+                        <span>
+                            <strong>{user.username}</strong> <small>({user.email})</small>
+                            {/* Affichage du téléphone si présent */}
+                            {user.phoneNumber && (
+                                <span style={{ marginLeft: '10px', color: '#666', fontSize: '0.9em' }}>
+                                     {user.phoneNumber}
+                                </span>
+                            )}
+                        </span>
 
                         {/* Bouton Modifier */}
                         <button
                             onClick={() => handleEditClick(user)}
                             style={{
-                                cursor: 'pointer', backgroundColor: 'transparent', border: '1px solid #ccc',
-                                padding: '5px 10px', borderRadius: '4px'
+                                cursor: 'pointer', backgroundColor: '#ffc107', border: 'none',
+                                padding: '5px 10px', borderRadius: '4px', fontSize: '14px'
                             }}
                         >
-                            Update
+                             Update
                         </button>
                     </li>
                 ))}

@@ -47,6 +47,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -54,6 +56,8 @@ import java.util.Optional;
 public class UserController {
 
     private final UserRepository userRepository;
+
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping
     public ResponseEntity<?> getAllUsers() {
@@ -73,11 +77,15 @@ public class UserController {
         log.info("Tentative de création d'un utilisateur : [Username: {}, Email: {}]", user.getUsername(), user.getEmail());
 
         try {
+
+            String encodedPassword = passwordEncoder.encode(user.getPassword());
+            user.setPassword(encodedPassword);
+
             User savedUser = userRepository.save(user);
             log.debug("Utilisateur créé avec succès avec l'ID : {}", savedUser.getId());
             return ResponseEntity.ok(savedUser);
         } catch (Exception e) {
-            // 4. Loguer l'erreur avec la variable contextuelle (l'objet user)
+
             log.error("Echec de la création pour l'utilisateur : {}", user, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Impossible de créer l'utilisateur");
         }
@@ -99,6 +107,12 @@ public class UserController {
             User userToUpdate = userOptional.get();
             userToUpdate.setUsername(userDetails.getUsername());
             userToUpdate.setEmail(userDetails.getEmail());
+            userToUpdate.setPhoneNumber(userDetails.getPhoneNumber());
+
+            if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
+                String encodedPassword = passwordEncoder.encode(userDetails.getPassword());
+                userToUpdate.setPassword(encodedPassword);
+            }
 
             User updatedUser = userRepository.save(userToUpdate);
 
