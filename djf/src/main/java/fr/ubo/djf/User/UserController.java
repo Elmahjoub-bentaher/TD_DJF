@@ -11,6 +11,8 @@ import java.util.Optional;
 
 import java.util.Map;
 
+import main.java.fr.ubo.djf.services.OtpService;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @RestController
@@ -22,6 +24,8 @@ public class UserController {
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final OtpService otpService;
 
     @GetMapping
     public ResponseEntity<?> getAllUsers() {
@@ -37,7 +41,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody User user) {
-        // 3. Loguer les variables d'entrée (CONTEXTE)
+        // Loguer les variables d'entrée (CONTEXTE)
         log.info("Tentative de création d'un utilisateur : [Username: {}, Email: {}]", user.getUsername(), user.getEmail());
 
         try {
@@ -125,7 +129,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
+    public ResponseEntity<?> loginRequest(@RequestBody Map<String, String> loginData) {
         String email = loginData.get("email");
         String password = loginData.get("password");
 
@@ -140,28 +144,42 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email ou mot de passe incorrect.");
             }
 
-            User user = userOptional.get();
+            try {
+                String otpCode = otpService.generateOtp(email);
 
-            // Vérification du mot de passe
-            // passwordEncoder.matches(mot_de_passe_en_clair, hash_en_base)
-            boolean isPasswordMatch = passwordEncoder.matches(password, user.getPassword());
+                log.info("OTP pour {} : [{}]", email, otpCode);
 
-            if (!isPasswordMatch) {
-                log.warn("Échec connexion : Mauvais mot de passe pour {}", email);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email ou mot de passe incorrect.");
+                // On renvoie un statut spécial pour dire au front "Affiche la case OTP"
+                return ResponseEntity.accepted().body(Map.of(
+                        "message", "OTP envoyé",
+                        "status", "OTP_REQUIRED",
+                        "email", email // On renvoie l'email pour le step 2
+                ));
+
+            } catch (RuntimeException e) {
+                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(e.getMessage());
             }
 
-            // Succès
-            log.info("Utilisateur {} connecté.", user.getEmail());
-
-            // On nettoie le mot de passe avant de renvoyer l'objet au frontend
-            user.setPassword(null);
-
-            return ResponseEntity.ok(user);
 
         } catch (Exception e) {
             log.error("Erreur technique lors du login", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur serveur.");
+        }
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtp(@RequestBody Map<String, String> otpData) {
+        String email = otpData.get("email");
+        String code = otpData.get("code");
+
+        if (otpService.validateOtp(email, code)) {
+            // OTP Valide -> On récupère l'user et on le connecte
+            User user = userRepository.findByEmail(email).get();
+            user.setPassword(null);
+            log.info("Utilisateur {} connecté via OTP.", email);
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Code OTP invalide ou expiré.");
         }
     }
 }
