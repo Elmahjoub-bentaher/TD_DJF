@@ -1,6 +1,6 @@
 package main.java.fr.ubo.djf.User;
 
-import lombok.extern.slf4j.Slf4j; // 1. Import Lombok pour les logs
+import lombok.extern.slf4j.Slf4j; // Import Lombok pour les logs
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -143,11 +143,14 @@ public class UserController {
                 // On reste vague sur l'erreur pour la sécurité
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email ou mot de passe incorrect.");
             }
+            User user = userOptional.get();
 
             try {
-                String otpCode = otpService.generateOtp(email);
+
+                String otpCode = otpService.generateOtp(user.getEmail(), user.getPhoneNumber());
 
                 log.info("OTP pour {} : [{}]", email, otpCode);
+
 
                 // On renvoie un statut spécial pour dire au front "Affiche la case OTP"
                 return ResponseEntity.accepted().body(Map.of(
