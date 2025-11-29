@@ -49,7 +49,7 @@ public class OtpService {
     private static final String API_KEY = "DOSITPDJF";
     private static final String SMS_API_URL = "http://dosipa.univ-brest.fr/send-sms";
 
-    private static final String SMS_PING_URL = "http://dosipa.univ-brest.fr/pingO";
+    private static final String SMS_PING_URL = "http://dosipa.univ-brest.fr/ping";
 
     private final RestTemplate restTemplate; // Pour faire des appels HTTP// 30 secondes
 
