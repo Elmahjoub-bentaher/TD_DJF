@@ -160,7 +160,13 @@ public class UserController {
                 ));
 
             } catch (RuntimeException e) {
-                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(e.getMessage());
+
+                log.error("Login interrompu : {}", e.getMessage());
+
+                Map<String, String> errorResponse = Map.of("error", e.getMessage());
+                // On renvoie le message d'erreur au front pour l'afficher                 return ResponseEntity
+                        .status(HttpStatus.SERVICE_UNAVAILABLE)
+                        .body(errorResponse);
             }
 
 

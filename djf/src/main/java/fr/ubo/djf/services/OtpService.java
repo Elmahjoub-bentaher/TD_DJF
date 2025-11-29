@@ -19,6 +19,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
+import org.springframework.http.ResponseEntity;
+
+import org.springframework.beans.factory.annotation.Value;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -28,12 +32,24 @@ public class OtpService {
     private final Map<String, OtpData> otpCache = new ConcurrentHashMap<>();
     private final SecureRandom random = new SecureRandom();
 
+
+//    @Value("${sms.api.url}")
+//    private String smsApiUrl;
+//
+//    @Value("${sms.ping.url}")
+//    private String smsPingUrl;
+//
+//    @Value("${sms.api.key}")
+//    private String apiKey;
+
     // Configuration des temps (en millisecondes)
     private static final long EXPIRY_DURATION = 2 * 60 * 1000; // 2 minutes
     private static final long RESEND_COOLDOWN = 30 * 1000;
 
     private static final String API_KEY = "DOSITPDJF";
     private static final String SMS_API_URL = "http://dosipa.univ-brest.fr/send-sms";
+
+    private static final String SMS_PING_URL = "http://dosipa.univ-brest.fr/pingO";
 
     private final RestTemplate restTemplate; // Pour faire des appels HTTP// 30 secondes
 
@@ -71,6 +87,17 @@ public class OtpService {
         if (phoneNumber == null || phoneNumber.isEmpty()) {
             log.warn("Pas de numéro de téléphone pour envoyer le SMS !");
             return;
+        }
+
+        try {
+            ResponseEntity<String> pingResponse = restTemplate.getForEntity(SMS_PING_URL, String.class);
+
+            if (!pingResponse.getStatusCode().is2xxSuccessful()) {
+                throw new RuntimeException("Serveur SMS en erreur (Status: " + pingResponse.getStatusCode() + ")");
+            }
+        } catch (Exception e) {
+            log.error("Ping SMS échoué : {}", e.getMessage());
+            throw new RuntimeException("Service SMS indisponible (Ping échoué).");
         }
 
         try {
