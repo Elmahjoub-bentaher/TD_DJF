@@ -33,23 +33,23 @@ public class OtpService {
     private final SecureRandom random = new SecureRandom();
 
 
-//    @Value("${sms.api.url}")
-//    private String smsApiUrl;
-//
-//    @Value("${sms.ping.url}")
-//    private String smsPingUrl;
-//
-//    @Value("${sms.api.key}")
-//    private String apiKey;
+    @Value("${sms.api.url}")
+    private String SMS_API_URL;
+
+    @Value("${sms.ping.url}")
+    private String SMS_PING_URL;
+
+    @Value("${sms.api.key}")
+    private String API_KEY;
 
     // Configuration des temps (en millisecondes)
     private static final long EXPIRY_DURATION = 2 * 60 * 1000; // 2 minutes
     private static final long RESEND_COOLDOWN = 30 * 1000;
 
-    private static final String API_KEY = "DOSITPDJF";
-    private static final String SMS_API_URL = "http://dosipa.univ-brest.fr/send-sms";
-
-    private static final String SMS_PING_URL = "http://dosipa.univ-brest.fr/ping";
+//    private static final String API_KEY = "DOSITPDJF";
+//    private static final String SMS_API_URL = "http://dosipa.univ-brest.fr/send-sms";
+//
+//    private static final String SMS_PING_URL = "http://dosipa.univ-brest.fr/ping";
 
     private final RestTemplate restTemplate; // Pour faire des appels HTTP// 30 secondes
 
